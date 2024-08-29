@@ -14,8 +14,9 @@ def authenticate_google_sheets(credentials_path, sheet_name):
 
 # Define the Student class
 class Student:
-    def __init__(self, name, grades):
-        self.name = name
+    def __init__(self, firstName,lastName, grades):
+        self.firstName = firstName
+        self.lastName = lastName
         self.grades = grades
         self.average = sum(grades.values()) / len(grades)
         self.status = 'Pass' if self.average >= 50 else 'Fail'
@@ -45,13 +46,14 @@ def insert_data(sheet, students):
 # Check if the first row is empty
     if not sheet.row_values(1):
         # Add headers
-        headers = ["Name", "English", "Math", "Physics", "History", "Python", "Average", "Rank", "Grade", "Status"]
+        headers = ["First name" ,"Last name", "English", "Math", "Physics", "History", "Python", "Average", "Rank", "Grade", "Status"]
         sheet.append_row(headers)
 
     # Add student data
     for student in students:
         row = [
-            student.name,
+            student.firstName,
+            student.lastName,
             student.grades["English"],
             student.grades["Math"],
             student.grades["Physics"],
@@ -93,7 +95,7 @@ def update_ranks(sheet):
     
     # Update ranks in the sheet
     for i, rank in enumerate(ranks, start=2):
-        sheet.update_cell(i, 8, rank)  # Column 8 is the Rank column
+        sheet.update_cell(i, 9, rank)  # Column 9 is the Rank column
 
 
 def get_valid_grade(subject):
@@ -130,11 +132,12 @@ def main():
     for _ in range(num_students):
 
         while True:
-            name = input("Enter student's name: ")
-            if is_valid_name(name):
+            firstName = input("Enter student's First name: ")
+            lastName = input("Enter student's Last name: ")
+            if is_valid_name(firstName) and is_valid_name(lastName):
                 break
             else:
-                print("Invalid name. Please enter a name with alphabetic characters only.")
+                print("Invalid name. Please enter names with alphabetic characters only.")
 
         grades = {
             "English": get_valid_grade("English"),
@@ -143,7 +146,7 @@ def main():
             "History": get_valid_grade("History"),
             "Python": get_valid_grade("Python")
         }
-        students.append(Student(name, grades))
+        students.append(Student(firstName,lastName, grades))
     
 
     rank_students(students)
