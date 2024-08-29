@@ -82,7 +82,17 @@ def update_ranks(sheet):
     for i, rank in enumerate(ranks, start=2):
         sheet.update_cell(i, 8, rank)  # Column 8 is the Rank column
 
-
+#Function to check if the grade of each subject is between 0 and 100.
+def get_valid_grade(subject):
+    while True:
+        try:
+            grade = float(input(f"Enter {subject} grade (0-100): "))
+            if 0 <= grade <= 100:
+                return grade
+            else:
+                print("Grade should be between 0 and 100.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric value.")
 
 # Main function to input student data and process it
 def main():
@@ -90,18 +100,15 @@ def main():
     num_students = int(input("Enter the number of students: "))
     
     for _ in range(num_students):
-        while True:
-            name = input("Enter student's name: ")
-            if name.isalpha() and name.strip():
-                break
-            else:
-                print("Invalid name. Please enter a valid name containing only alphabetic characters.")
+
+        name = input("Enter student's name: ")
+
         grades = {
-            "English": float(input("Enter English grade: ")),
-            "Math": float(input("Enter Math grade: ")),
-            "Physics": float(input("Enter Physics grade: ")),
-            "History": float(input("Enter History grade: ")),
-            "Python": float(input("Enter Python grade: "))
+            "English": get_valid_grade("English"),
+            "Math": get_valid_grade("Math"),
+            "Physics": get_valid_grade("Physics"),
+            "History": get_valid_grade("History"),
+            "Python": get_valid_grade("Python")
         }
         students.append(Student(name, grades))
     
