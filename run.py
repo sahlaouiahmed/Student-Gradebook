@@ -31,3 +31,26 @@ class Student:
             return 'D'
         else:
             return 'F'  
+
+
+
+# Main function to input student data and process it
+def main():
+    students = []
+    num_students = int(input("Enter the number of students: "))
+    
+    for _ in range(num_students):
+        while True:
+            name = input("Enter student's name: ")
+            if name.isalpha() and name.strip():
+                break
+            else:
+                print("Invalid name. Please enter a valid name containing only alphabetic characters.")
+        grades = {
+            "English": float(input("Enter English grade: ")),
+            "Math": float(input("Enter Math grade: ")),
+            "Physics": float(input("Enter Physics grade: ")),
+            "History": float(input("Enter History grade: ")),
+            "Python": float(input("Enter Python grade: "))
+        }
+        students.append(Student(name, grades))
