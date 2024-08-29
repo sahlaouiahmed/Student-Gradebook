@@ -56,6 +56,8 @@ def insert_data(sheet, students):
             student.status
         ]
         sheet.append_row(row)
+    # Update ranks
+    update_ranks(sheet)
 
 
 # Function to rank students
@@ -63,6 +65,22 @@ def rank_students(students):
     students.sort(key=lambda x: x.average, reverse=True)
     for rank, student in enumerate(students, start=1):
         student.rank = rank
+
+
+#Function to update the rank of each student when the user add new data
+def update_ranks(sheet):
+    # Get all data
+    data = sheet.get_all_values()
+    
+    # Extract averages
+    averages = [float(row[6]) for row in data[1:]]
+    
+    # Calculate ranks
+    ranks = [sorted(averages, reverse=True).index(x) + 1 for x in averages]
+    
+    # Update ranks in the sheet
+    for i, rank in enumerate(ranks, start=2):
+        sheet.update_cell(i, 8, rank)  # Column 8 is the Rank column
 
 
 
