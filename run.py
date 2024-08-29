@@ -22,15 +22,15 @@ class Student:
     #Assign a grade to each student based on his average
     def assign_grade(self):
         if self.average >= 90:
-            return 'A'
+            return 'Excellent'
         elif self.average >= 80:
-            return 'B'
+            return 'Very good'
         elif self.average >= 70:
-            return 'C'
-        elif self.average >= 60:
-            return 'D'
+            return 'Good'
+        elif self.average >= 50 and self.average <70 :
+            return 'Passable'
         else:
-            return 'F'  
+            return 'Failed'  
         
 
 # Function to insert data into Google Sheets
@@ -94,6 +94,14 @@ def get_valid_grade(subject):
         except ValueError:
             print("Invalid input. Please enter a numeric value.")
 
+
+def is_valid_name(name):
+    """
+    Check if the provided name is valid.
+    A valid name contains only alphabetic characters and is not empty.
+    """
+    return name.isalpha()
+
 # Main function to input student data and process it
 def main():
     students = []
@@ -101,7 +109,12 @@ def main():
     
     for _ in range(num_students):
 
-        name = input("Enter student's name: ")
+        while True:
+            name = input("Enter student's name: ")
+            if is_valid_name(name):
+                break
+            else:
+                print("Invalid name. Please enter a name with alphabetic characters only.")
 
         grades = {
             "English": get_valid_grade("English"),
