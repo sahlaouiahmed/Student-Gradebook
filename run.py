@@ -31,6 +31,31 @@ class Student:
             return 'D'
         else:
             return 'F'  
+        
+
+# Function to insert data into Google Sheets
+def insert_data(sheet, students):
+# Check if the first row is empty
+    if not sheet.row_values(1):
+        # Add headers
+        headers = ["Name", "English", "Math", "Physics", "History", "Python", "Average", "Rank", "Grade", "Status"]
+        sheet.append_row(headers)
+
+    # Add student data
+    for student in students:
+        row = [
+            student.name,
+            student.grades["English"],
+            student.grades["Math"],
+            student.grades["Physics"],
+            student.grades["History"],
+            student.grades["Python"],
+            student.average,
+            student.rank,
+            student.grade,
+            student.status
+        ]
+        sheet.append_row(row)
 
 
 
