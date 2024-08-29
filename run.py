@@ -102,8 +102,11 @@ def is_valid_name(name):
     """
     return name.isalpha()
 
-# Main function to input student data and process it
+
 def main():
+    """
+    Main function to input student data and process it
+    """
     students = []
     num_students = int(input("Enter the number of students: "))
     
