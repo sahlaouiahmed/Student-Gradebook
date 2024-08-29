@@ -58,6 +58,13 @@ def insert_data(sheet, students):
         sheet.append_row(row)
 
 
+# Function to rank students
+def rank_students(students):
+    students.sort(key=lambda x: x.average, reverse=True)
+    for rank, student in enumerate(students, start=1):
+        student.rank = rank
+
+
 
 # Main function to input student data and process it
 def main():
@@ -79,3 +86,12 @@ def main():
             "Python": float(input("Enter Python grade: "))
         }
         students.append(Student(name, grades))
+    
+
+    rank_students(students)
+    # Insert data into Google Sheets
+    sheet = authenticate_google_sheets("credentials.json", "Student Gradebook")
+    insert_data(sheet, students)
+
+if __name__ == "__main__":
+    main()
