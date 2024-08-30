@@ -18,7 +18,9 @@ class Student:
         self.firstName = firstName
         self.lastName = lastName
         self.grades = grades
+        print("calculting of each student average ....")
         self.average = sum(grades.values()) / len(grades)
+        print("Evaluate the student’s status as pass or fail ...")
         self.status = 'Pass' if self.average >= 50 else 'Fail'
         self.grade =  self.assign_grade() 
 
@@ -26,6 +28,7 @@ class Student:
         """
         Assign a grade to each student based on his average
         """
+        print("Assign a grade to each student based on his average ...")
         if self.average >= 90:
             return 'Excellent'
         elif self.average >= 80:
@@ -48,7 +51,7 @@ def insert_data(sheet, students):
         # Add headers
         headers = ["First name" ,"Last name", "English", "Math", "Physics", "History", "Python", "Average", "Rank", "Grade", "Status"]
         sheet.append_row(headers)
-
+    print("Insertion of the students data in your worksheet...")
     # Add student data
     for student in students:
         row = [
@@ -65,6 +68,7 @@ def insert_data(sheet, students):
             student.status
         ]
         sheet.append_row(row)
+    print("Done")
     # Update ranks
     update_ranks(sheet)
 
@@ -74,10 +78,11 @@ def rank_students(students):
     """
     Function to rank students
     """
+    print("Calculating each student rank ...")
     students.sort(key=lambda x: x.average, reverse=True)
     for rank, student in enumerate(students, start=1):
         student.rank = rank
-
+    print("Done")
 
 
 def update_ranks(sheet):
@@ -89,14 +94,14 @@ def update_ranks(sheet):
     
     # Extract averages
     averages = [float(row[6]) for row in data[1:]]
-    
+    print("Updating ranks ...")
     # Calculate ranks
     ranks = [sorted(averages, reverse=True).index(x) + 1 for x in averages]
     
     # Update ranks in the sheet
     for i, rank in enumerate(ranks, start=2):
         sheet.update_cell(i, 9, rank)  # Column 9 is the Rank column
-
+    print("Done")
 
 def get_valid_grade(subject):
     """
@@ -105,7 +110,7 @@ def get_valid_grade(subject):
     """
     while True:
         try:
-            grade = float(input(f"Enter {subject} grade (0-100): "))
+            grade = float(input(f"Enter {subject} grade (0-100): \n"))
             if 0 <= grade <= 100:
                 return grade
             else:
@@ -127,13 +132,14 @@ def main():
     Main function to input student data and process it
     """
     students = []
-    num_students = int(input("Enter the number of students: "))
+    print("Entering student(s) information")
+    num_students = int(input("Enter the number of students: \n"))
     
     for _ in range(num_students):
 
         while True:
-            firstName = input("Enter student's First name: ")
-            lastName = input("Enter student's Last name: ")
+            firstName = input("Enter student's First name: \n")
+            lastName = input("Enter student's Last name: \n")
             if is_valid_name(firstName) and is_valid_name(lastName):
                 break
             else:
