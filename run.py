@@ -131,9 +131,10 @@ def main():
     """
     Main function to input student data and process it
     """
+    print("Welcome to our student gradebook ")
     students = []
     print("Entering student(s) information")
-    num_students = int(input("Enter the number of students: \n"))
+    num_students = int(input("Please enter the number of students: \n"))
     
     for _ in range(num_students):
 
