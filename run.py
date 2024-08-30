@@ -18,9 +18,7 @@ class Student:
         self.firstName = firstName
         self.lastName = lastName
         self.grades = grades
-        print("calculting of each student average ....")
         self.average = sum(grades.values()) / len(grades)
-        print("Evaluate the student’s status as pass or fail ...")
         self.status = 'Pass' if self.average >= 50 else 'Fail'
         self.grade =  self.assign_grade() 
 
@@ -28,7 +26,6 @@ class Student:
         """
         Assign a grade to each student based on his average
         """
-        print("Assign a grade to each student based on his average ...")
         if self.average >= 90:
             return 'Excellent'
         elif self.average >= 80:
@@ -156,6 +153,10 @@ def main():
         students.append(Student(firstName,lastName, grades))
     
 
+
+    print("Calculating each student's average...")
+    print("Assign a grade to each student based on his average ...")
+    print("Evaluate the student’s status as pass or fail ...")
     rank_students(students)
     # Insert data into Google Sheets
     sheet = authenticate_google_sheets("credentials.json", "Student Gradebook")
