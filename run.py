@@ -54,7 +54,8 @@ def insert_data(sheet, students):
     Function to insert data into Google Sheets
     """
 # Check if the first row is empty
-    if not sheet.row_values(1):
+    all_values = sheet.get_all_values()
+    if not all_values :
         # Add headers
         headers = ["First name" ,"Last name", "English", "Math", "Physics", "History", "Python", "Average", "Rank", "Grade", "Status"]
         sheet.append_row(headers)
