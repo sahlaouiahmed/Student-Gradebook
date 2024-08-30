@@ -2,14 +2,16 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 
-def authenticate_google_sheets(credentials_path, sheet_name):
-    """
-    Authenticate and connect to Google Sheets
-    """
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
-    client = gspread.authorize(creds)
-    return client.open(sheet_name).sheet1
+# Define the scope
+SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+
+# Authenticate using the service account credentials
+CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
+client = gspread.authorize(CREDS)
+
+# Open the Google Sheet
+sheet = client.open('Student Gradebook').sheet1
+
 
 
 # Define the Student class
@@ -157,9 +159,9 @@ def main():
     print("Calculating each student's average...")
     print("Assign a grade to each student based on his average ...")
     print("Evaluate the student’s status as pass or fail ...")
+    # Calculating the rank of students
     rank_students(students)
     # Insert data into Google Sheets
-    sheet = authenticate_google_sheets("credentials.json", "Student Gradebook")
     insert_data(sheet, students)
 
 if __name__ == "__main__":
