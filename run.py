@@ -1,11 +1,8 @@
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2.service_account import Credentials
 import os
-from oauth2client.client import OAuth2Credentials
-from gspread.exceptions import APIError, WorksheetNotFound
+from gspread.exceptions import WorksheetNotFound
 import json
-
 
 # Define the scope
 SCOPE = [
@@ -16,21 +13,21 @@ SCOPE = [
 
 # Authenticate using the service account credentials from environment variables
 try:
-    if not os.path.exists('credentials.json'):
-        raise FileNotFoundError("The credentials.json file was not found.")
-    CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
-    client = gspread.authorize(CREDS)
-except (FileNotFoundError, OAuth2Credentials.Error) as e:
+    if 'CREDS' in os.environ:
+        credentials_info = json.loads(os.getenv('CREDS'))
+    else:
+        # For local development in Gitpod, use the credentials file
+        credentials_info = json.load(open('credentials.json'))
+    
+    creds = Credentials.from_service_account_info(credentials_info)
+    SCOPED_CREDS = creds.with_scopes(SCOPE)
+    GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+    spreadsheet = GSPREAD_CLIENT.open('Student Gradebook')
+except Exception as e:
     print(f"Error in authentication: {e}")
     exit(1)
 
 
-# Open the Google Sheet
-try:
-    spreadsheet = client.open('Student Gradebook')
-except APIError as e:
-    print(f"Error in accessing the Google Sheet: {e}")
-    exit(1)
 
 def get_or_create_worksheet(spreadsheet, class_name):
     """
