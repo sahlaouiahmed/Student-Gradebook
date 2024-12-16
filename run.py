@@ -16,10 +16,11 @@ SCOPE = [
 
 # Authenticate using the service account credentials from environment variables
 try:
-    credentials_info = json.loads(os.getenv("CREDS"))
-    creds = Credentials.from_service_account_info(credentials_info)
-    client = gspread.authorize(creds)
-except Exception as e:
+    if not os.path.exists('credentials.json'):
+        raise FileNotFoundError("The credentials.json file was not found.")
+    CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
+    client = gspread.authorize(CREDS)
+except (FileNotFoundError, OAuth2Credentials.Error) as e:
     print(f"Error in authentication: {e}")
     exit(1)
 
