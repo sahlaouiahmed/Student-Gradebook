@@ -294,7 +294,7 @@ This project is deployed to Heroku using the GitHub integration. Follow the step
 4. **Procfile**:
    - Ensure a `Procfile` with the following content is present:
      ```
-     web: python run.py
+        web: node index.js
      ```
 
 5. **Push to GitHub**:
