@@ -29,6 +29,15 @@ except Exception as e:
 
 
 
+import re
+
+def is_valid_class_name(class_name):
+    """
+    Check if the provided class name is valid.
+    A valid class name contains only alphanumeric characters and spaces, and is not empty.
+    """
+    return bool(re.match("^[A-Za-z0-9 ]+$", class_name)) and class_name.strip() != ""
+
 def get_or_create_worksheet(spreadsheet, class_name):
     """
     Get or create a worksheet with the given class name
@@ -41,11 +50,21 @@ def get_or_create_worksheet(spreadsheet, class_name):
             if use_existing.lower() == "yes":
                 return worksheet
             else:
-                class_name = input("Please enter a different class name: \n")
+                while True:
+                    class_name = input("Please enter a different class name (alphanumeric and spaces only): \n")
+                    if is_valid_class_name(class_name):
+                        break
+                    else:
+                        print("Invalid class name. Please enter a name with alphanumeric characters and spaces only.")
         except WorksheetNotFound:
-            worksheet = spreadsheet.add_worksheet(title=class_name, rows="100", cols="20")
-            print(f"Worksheet '{class_name}' created.")
-            return worksheet
+            while True:
+                if is_valid_class_name(class_name):
+                    worksheet = spreadsheet.add_worksheet(title=class_name, rows="100", cols="20")
+                    print(f"Worksheet '{class_name}' created.")
+                    return worksheet
+                else:
+                    print("Invalid class name. Please enter a name with alphanumeric characters and spaces only.")
+                    class_name = input("Please enter a valid class name (alphanumeric and spaces only): \n")
 
 # Define the Student class
 class Student:
@@ -260,6 +279,7 @@ def get_valid_grade(subject):
         except ValueError:
             print("Invalid input. Please enter a numeric value.")
 
+            
 def is_valid_name(name):
     """
     Check if the provided name is valid.
@@ -291,11 +311,17 @@ def main():
         for _ in range(num_students):
             while True:
                 firstName = input("Enter student's First name: \n")
-                lastName = input("Enter student's Last name: \n")
-                if is_valid_name(firstName) and is_valid_name(lastName):
+                if is_valid_name(firstName):
                     break
                 else:
-                    print("Invalid name. Please enter names with alphabetic characters only.")
+                    print("Invalid first name. Please enter a name with alphabetic characters only.")
+
+            while True:
+                lastName = input("Enter student's Last name: \n")
+                if is_valid_name(lastName):
+                    break
+                else:
+                    print("Invalid last name. Please enter a name with alphabetic characters only.")
 
             grades = {
                 "English": get_valid_grade("English"),
@@ -309,15 +335,17 @@ def main():
         print("Calculating each student's average...")
         print("Assigning a grade to each student based on their average...")
         print("Evaluating the student’s status as pass or fail...")
-        
+
         # Calculating the rank of students
         rank_students(students)
         
         # Insert data into Google Sheets
         insert_data(worksheet, students)
         
+        print("Data saved successfully.")
         another_class = input("Do you want to add data for another class? (yes/no): \n")
         if another_class.lower() != "yes":
+            print("Thank you! Quitting now.")
             break
 
 if __name__ == "__main__":
