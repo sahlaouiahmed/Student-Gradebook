@@ -4,6 +4,8 @@ from google.oauth2.service_account import Credentials
 import os
 from oauth2client.client import OAuth2Credentials
 from gspread.exceptions import APIError, WorksheetNotFound
+import json
+
 
 # Define the scope
 SCOPE = [
@@ -12,15 +14,15 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-# Authenticate using the service account credentials
+# Authenticate using the service account credentials from environment variables
 try:
-    if not os.path.exists('credentials.json'):
-        raise FileNotFoundError("The credentials.json file was not found.")
-    CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
-    client = gspread.authorize(CREDS)
-except (FileNotFoundError, OAuth2Credentials.Error) as e:
+    credentials_info = json.loads(os.getenv("CREDS"))
+    creds = Credentials.from_service_account_info(credentials_info)
+    client = gspread.authorize(creds)
+except Exception as e:
     print(f"Error in authentication: {e}")
     exit(1)
+
 
 # Open the Google Sheet
 try:
