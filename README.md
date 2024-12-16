@@ -9,6 +9,8 @@ This Python project allows users to manage student data efficiently. Users can e
 
 This project aims to streamline the process of student evaluation, making it easier for educators to track and analyze student performance.
 
+You can access the live version of the application at the following link: [Student Gradebook App](https://student-gradebook-d718e2d334b6.herokuapp.com/)
+
 ## Features
 1. User-Friendly Data Entry:
     * Allows users to input student names, surnames, and grades in various subjects.
@@ -45,8 +47,10 @@ This project aims to streamline the process of student evaluation, making it eas
 
 ```python
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import os
+from gspread.exceptions import WorksheetNotFound
+import json
 
 # Define the scope
 SCOPE = [
@@ -55,32 +59,32 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-# Authenticate using the service account credentials
+# Authenticate using the service account credentials from environment variables
 try:
-    CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
-    client = gspread.authorize(CREDS)
-except (FileNotFoundError, OAuth2Credentials.Error) as e:
+    if 'CREDS' in os.environ:
+        credentials_info = json.loads(os.getenv('CREDS'))
+    else:
+        # For local development in Gitpod, use the credentials file
+        credentials_info = json.load(open('credentials.json'))
+    
+    creds = Credentials.from_service_account_info(credentials_info)
+    SCOPED_CREDS = creds.with_scopes(SCOPE)
+    GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+    spreadsheet = GSPREAD_CLIENT.open('Student Gradebook')
+except Exception as e:
     print(f"Error in authentication: {e}")
     exit(1)
 ```
 
-This section handles authentication with Google Sheets API using service account credentials.
+This section handles the authentication and setup process for accessing and manipulating the Google Sheets API using service account credentials. The code dynamically determines whether to use environment variables (for deployment environments like Heroku) or a local credentials file (for development environments like Gitpod).
 
-2. Opening the Google Sheet
-
-```python
-try:
-    spreadsheet = client.open('Student Gradebook')
-except APIError as e:
-    print(f"Error in accessing the Google Sheet: {e}")
-    exit(1)
-```
-This code opens the Google Sheet named 'Student Gradebook'.
-
-3. Worksheet Management
+2. Worksheet Management
 
 ```python
 def get_or_create_worksheet(spreadsheet, class_name):
+    """
+    Get or create a worksheet with the given class name
+    """
     while True:
         try:
             worksheet = spreadsheet.worksheet(class_name)
@@ -89,15 +93,29 @@ def get_or_create_worksheet(spreadsheet, class_name):
             if use_existing.lower() == "yes":
                 return worksheet
             else:
-                class_name = input("Please enter a different class name: \n")
+                while True:
+                    class_name = input("Please enter a different class name (alphanumeric and spaces only): \n")
+                    if is_valid_class_name(class_name):
+                        break
+                    else:
+                        print("Invalid class name. Please enter a name with alphanumeric characters and spaces only.")
         except WorksheetNotFound:
-            worksheet = spreadsheet.add_worksheet(title=class_name, rows="100", cols="20")
-            print(f"Worksheet '{class_name}' created.")
-            return worksheet
+            while True:
+                if is_valid_class_name(class_name):
+                    worksheet = spreadsheet.add_worksheet(title=class_name, rows="100", cols="20")
+                    print(f"Worksheet '{class_name}' created.")
+                    return worksheet
+                else:
+                    print("Invalid class name. Please enter a name with alphanumeric characters and spaces only.")
+                    class_name = input("Please enter a valid class name (alphanumeric and spaces only): \n")
 ```
-This function checks if a worksheet with the class name exists. If it does, the user is prompted to use the existing worksheet or create a new one.
+- Function Description : The function checks for the existence of a worksheet with the specified class name, prompts the user to either use the existing worksheet or create a new one, and ensures the class name is valid before proceeding.
 
-4. Student Class
+- Validation Function : is_valid_class_name checks if the class name contains only alphanumeric characters and spaces, and is not empty.
+
+- User Prompt : The program validates the class name and prompts the user to re-enter until a valid name is provided.
+
+3. Student Class
 
 ```python
 class Student:
@@ -124,7 +142,7 @@ class Student:
 
 The Student class defines the attributes and methods for each student, including calculating averages and assigning grades.
 
-5. Inserting Data
+4. Inserting Data
 
 ```python
 def insert_data(worksheet, students):
@@ -157,7 +175,7 @@ def insert_data(worksheet, students):
 
 This function inserts student data into the Google Sheets and includes headers if they are not already present.
 
-6. Ranking Students
+5. Ranking Students
 
 ```python
 def rank_students(students):
@@ -169,7 +187,7 @@ def rank_students(students):
 
 This function sorts and ranks students based on their average grades.
 
-7. Updating Ranks
+6. Updating Ranks
 
 ```python
 def update_ranks(worksheet):
@@ -184,7 +202,7 @@ def update_ranks(worksheet):
 
 This function updates the ranks in the worksheet based on the student averages.
 
-8. Main Function
+7. Main Function
 
 ```python
 def main():
@@ -211,11 +229,17 @@ def main():
         for _ in range(num_students):
             while True:
                 firstName = input("Enter student's First name: \n")
-                lastName = input("Enter student's Last name: \n")
-                if is_valid_name(firstName) and is_valid_name(lastName):
+                if is_valid_name(firstName):
                     break
                 else:
-                    print("Invalid name. Please enter names with alphabetic characters only.")
+                    print("Invalid first name. Please enter a name with alphabetic characters only.")
+
+            while True:
+                lastName = input("Enter student's Last name: \n")
+                if is_valid_name(lastName):
+                    break
+                else:
+                    print("Invalid last name. Please enter a name with alphabetic characters only.")
 
             grades = {
                 "English": get_valid_grade("English"),
@@ -229,16 +253,19 @@ def main():
         print("Calculating each student's average...")
         print("Assigning a grade to each student based on their average...")
         print("Evaluating the student’s status as pass or fail...")
-        
+
         # Calculating the rank of students
         rank_students(students)
         
         # Insert data into Google Sheets
         insert_data(worksheet, students)
         
+        print("Data saved successfully.")
         another_class = input("Do you want to add data for another class? (yes/no): \n")
         if another_class.lower() != "yes":
+            print("Thank you! Quitting now.")
             break
+
 ```
 
 This function handles the entire workflow of the application, from gathering class and student information, validating inputs, calculating student averages and ranks, to inserting the data into Google Sheets and applying appropriate styling. The function continues to prompt the user for new class data until they choose to stop.
@@ -291,11 +318,12 @@ This project is deployed to Heroku using the GitHub integration. Follow the step
 3. **Environment Variables**:
    - Set up environment variables in the "Settings" tab of the Heroku app. Add any necessary environment variables specific to your project.
 
-4. **Procfile**:
+4. **Procfile and requirements.txt files**:
    - Ensure a `Procfile` with the following content is present:
      ```
         web: node index.js
      ```
+   - We created a `requirements.txt` file to list all the necessary Python dependencies. This file ensures that Heroku installs all the required libraries for the project to run smoothly.
 
 5. **Push to GitHub**:
    - Ensure all changes are committed to the GitHub repository.
